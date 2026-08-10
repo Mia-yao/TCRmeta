@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "TCRmeta"
+version = "0.1.0"
+description = "Antigen-aware TCR repertoire embeddings: pretrained ESM2 + contrastive fine-tuning, with downstream CSS scoring, UMAP projection, and energy-distance shift analysis."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Mingyao Pan" },
+]
+keywords = ["TCR", "immunology", "repertoire", "embedding", "ESM2", "contrastive learning"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+
+dependencies = [
+    "numpy>=1.23",
+    "pandas>=1.5",
+    "scipy>=1.9",
+    "scikit-learn>=1.2",
+    "torch>=1.13",
+    "transformers>=4.30",
+    "umap-learn>=0.5",
+    "joblib>=1.2",
+    "tqdm>=4.64",
+    "huggingface_hub>=0.20",
+    "matplotlib>=3.6",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "build>=1.0"]
+
+[project.urls]
+Homepage = "https://github.com/mingyaopan/TCRmeta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+tcrmeta = ["data/*.csv"]
