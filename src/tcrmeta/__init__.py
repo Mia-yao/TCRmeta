@@ -19,4 +19,4 @@ __all__ = [
     "energy_shift",
 ]
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
