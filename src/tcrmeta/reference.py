@@ -1,6 +1,6 @@
 """build_reference(): fit a per-V-gene reference density + UMAP map from
 a reference cohort of TCR repertoires. Each V gene's model bundles both
-the KDE side (used by compute_css) and the UMAP side (used by plot_umap)
+the KDE side (used by compute_rds) and the UMAP side (used by plot_umap)
 in a single object, since both are fit from the same pooled, weighted
 reference embeddings.
 
@@ -44,7 +44,7 @@ def _prepare_reference_sample(
     Always embeds with embedding_type="final" (the antigen-aware,
     contrastively fine-tuned embedding) regardless of what's in
     embed_kwargs, so every reference map is built in a single,
-    consistent 64-dim embedding space matching compute_css/plot_umap.
+    consistent 64-dim embedding space matching compute_rds/plot_umap.
     Only embed_repertoire() itself exposes a choice of embedding_type.
     """
     from .embedding import attach_embeddings  # lazy: keeps the pure
@@ -182,7 +182,7 @@ def build_reference(
     **embed_kwargs,
 ) -> Dict[str, dict]:
     """Build a per-V-gene reference density + UMAP map from a reference
-    cohort, for use as `reference=` in compute_css()/plot_umap().
+    cohort, for use as `reference=` in compute_rds()/plot_umap().
 
     Parameters
     ----------

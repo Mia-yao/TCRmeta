@@ -84,7 +84,7 @@ def main():
     if "reference_maps/young_reference.pkl" not in TARGETS:
         print(
             "\nNote: no default reference map was linked (DEFAULT_REFERENCE not "
-            "found/set). compute_css()/plot_umap() will need reference=... passed "
+            "found/set). compute_rds()/plot_umap() will need reference=... passed "
             "explicitly, or build one fresh with tm.build_reference()."
         )
 

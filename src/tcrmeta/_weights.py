@@ -24,9 +24,6 @@ import os
 from pathlib import Path
 from typing import Optional
 
-# TODO: replace with the actual Hugging Face Hub repo id once created,
-# e.g. "Mingyaoooo123/tcrmeta-weights". Can be overridden without a code
-# change via the TCRMETA_HF_REPO environment variable.
 DEFAULT_HF_REPO = os.environ.get("TCRMETA_HF_REPO", "Mingyaoooo123/tcrmeta-weights")
 
 # Filenames as they should exist in the Hub repo / local weights dir.

@@ -44,7 +44,7 @@ Matches the reference load_one_sample() / compute_pair_metrics_by_v_long()
    which TCRmeta's energy_shift doesn't compute).
 
 v_gene defaults to None, meaning all V genes present (with enough
-clones) in both repertoires are scored — unlike compute_css/plot_umap,
+clones) in both repertoires are scored — unlike compute_rds/plot_umap,
 this is cheap enough to not need restricting by default.
 """
 from __future__ import annotations
@@ -239,7 +239,7 @@ def energy_shift(
     v_gene:
         A V gene, list of V genes, or None (default) to use every V gene
         present in both repertoires with enough clones. Unlike
-        compute_css/plot_umap, results across V genes are returned
+        compute_rds/plot_umap, results across V genes are returned
         together in one table (computing all genes is cheap here).
     downsample:
         WHOLE-REPERTOIRE target depth for multinomial downsampling

@@ -1,5 +1,5 @@
-"""Task 2: compute_css — score a query repertoire against a reference
-density map (Clonal Shift Score / CSS).
+"""Task 2: compute_rds — score a query repertoire against a reference
+density map (Repertoire Dispersal Score / RDS).
 
 For each V gene, the query repertoire's embeddings are projected through
 the reference's fitted scaler + PCA, scored with the reference's KDE to
@@ -11,9 +11,9 @@ high-density (POS) and low-density (LZO) percentile thresholds:
               percentile log-density (matches the reference's dense/core region)
     LZO_q   = weighted fraction of clones at/below the reference's q-th
               percentile log-density (outlier / shifted-away-from-reference)
-    CSS     = LZO_q / (POS_p + eps)   — higher means more of the repertoire
+    RDS     = LZO_q / (POS_p + eps)   — higher means more of the repertoire
               has drifted into the reference's low-density tail.
-    log_CSS = log10(CSS + eps)
+    log_RDS = log10(RDS + eps)
 
 Two outputs are always produced: a per-V-gene table (one row per gene
 scored), and a whole-repertoire table pooling log-densities across all
@@ -77,7 +77,7 @@ def _score_vgene(
         raise ValueError(
             f"Embedding dimension mismatch: this reference's V-gene models "
             f"were fit on {expected_dim}-dim embeddings, but the query "
-            f"repertoire was embedded to {emb.shape[1]}-dim. compute_css "
+            f"repertoire was embedded to {emb.shape[1]}-dim. compute_rds "
             f"always embeds with embedding_type='final' (64-dim), so this "
             f"usually means the reference map was built with a different, "
             f"incompatible embedding pipeline — rebuild it with "
@@ -89,13 +89,13 @@ def _score_vgene(
     mld = float(np.average(ld, weights=wn))
     pos = float(np.average((ld >= thr_pos).astype(float), weights=wn))
     lzo = float(np.average((ld <= thr_neg).astype(float), weights=wn))
-    css = lzo / (pos + 1e-10)
+    rds = lzo / (pos + 1e-10)
     return {
         "MLD": mld,
         "POS": pos,
         "LZO": lzo,
-        "CSS": css,
-        "log_CSS": float(np.log10(css + 1e-10)),
+        "RDS": rds,
+        "log_RDS": float(np.log10(rds + 1e-10)),
         "n_clones": int(len(ld)),
         "_logdens": ld,
         "_thr_pos": thr_pos,
@@ -105,8 +105,8 @@ def _score_vgene(
 
 def _pool_whole_repertoire(scored_rows: List[dict]) -> dict:
     if len(scored_rows) == 0:
-        return {"MLD": np.nan, "POS": np.nan, "LZO": np.nan, "CSS": np.nan,
-                "log_CSS": np.nan, "n_clones": 0, "n_v_genes": 0}
+        return {"MLD": np.nan, "POS": np.nan, "LZO": np.nan, "RDS": np.nan,
+                "log_RDS": np.nan, "n_clones": 0, "n_v_genes": 0}
 
     ld_cat = np.concatenate([r["_ld"] for r in scored_rows])
     w_cat = np.concatenate([r["_w"] for r in scored_rows])
@@ -118,19 +118,19 @@ def _pool_whole_repertoire(scored_rows: List[dict]) -> dict:
     mld = float(np.average(ld_cat, weights=wn))
     pos = float(np.average((ld_cat >= thr_pos).astype(float), weights=wn))
     lzo = float(np.average((ld_cat <= thr_neg).astype(float), weights=wn))
-    css = lzo / (pos + 1e-10)
+    rds = lzo / (pos + 1e-10)
     return {
         "MLD": mld,
         "POS": pos,
         "LZO": lzo,
-        "CSS": css,
-        "log_CSS": float(np.log10(css + 1e-10)),
+        "RDS": rds,
+        "log_RDS": float(np.log10(rds + 1e-10)),
         "n_clones": int(len(ld_cat)),
         "n_v_genes": len(scored_rows),
     }
 
 
-def compute_css(
+def compute_rds(
     df: pd.DataFrame,
     reference: Union[None, str, ReferenceMap] = None,
     v_gene: Optional[Union[str, Sequence[str]]] = None,
@@ -144,7 +144,8 @@ def compute_css(
     whole_path: Optional[str] = None,
     **embed_kwargs,
 ):
-    """Score a query repertoire's CSS against a reference density map.
+    """Score a query repertoire's Repertoire Dispersal Score (RDS) against
+    a reference density map.
 
     Parameters
     ----------
@@ -166,7 +167,7 @@ def compute_css(
     -------
     (per_gene_df, whole_df):
         per_gene_df has one row per scored V gene (columns: v_gene, MLD,
-        POS_<p>, LZO_<q>, CSS, log_CSS, n_clones).
+        POS_<p>, LZO_<q>, RDS, log_RDS, n_clones).
         whole_df is a single-row dataframe pooling all scored V genes'
         densities (weighted by clone count) into one aggregate score.
     """
@@ -209,8 +210,8 @@ def compute_css(
             "MLD": scored["MLD"],
             f"POS_{pos_percentile}": scored["POS"],
             f"LZO_{neg_percentile}": scored["LZO"],
-            "CSS": scored["CSS"],
-            "log_CSS": scored["log_CSS"],
+            "RDS": scored["RDS"],
+            "log_RDS": scored["log_RDS"],
             "n_clones": scored["n_clones"],
         })
         pool_inputs.append({

@@ -1,5 +1,5 @@
 """Shared, dependency-light utilities used across TCRmeta's embedding,
-CSS, UMAP, and energy-shift modules.
+RDS, UMAP, and energy-shift modules.
 """
 from __future__ import annotations
 
@@ -81,7 +81,7 @@ def downsample_then_embed(
     embed_kwargs: dict,
 ) -> pd.DataFrame:
     """Downsample a repertoire's raw counts FIRST, then embed only the
-    clones that survive downsampling — used by compute_css/plot_umap.
+    clones that survive downsampling — used by compute_rds/plot_umap.
 
     Multinomial downsampling to `downsample` total reads keeps at most
     `downsample` unique (cdr3aa, v_gene) rows (each surviving row needs
@@ -103,7 +103,7 @@ def downsample_then_embed(
 
     Always embeds with embedding_type="final" (the antigen-aware,
     contrastively fine-tuned embedding) regardless of what's in
-    embed_kwargs — compute_css/plot_umap's reference maps are built on
+    embed_kwargs — compute_rds/plot_umap's reference maps are built on
     that embedding space, so scoring against them requires it. Only
     embed_repertoire() itself exposes a choice of embedding_type.
     """
@@ -174,7 +174,7 @@ def aggregate_duplicate_clones(df: pd.DataFrame, sort: bool = True) -> pd.DataFr
     depends on what the calling code's original (pre-packaging) script
     did. energy_shift's original script deduplicated with pandas'
     default sort=True before downsampling, so energy.py relies on the
-    default here. CSS/UMAP's original scoring scripts never deduplicated
+    default here. RDS/UMAP's original scoring scripts never deduplicated
     rows at all (raw CSV order preserved throughout) — those code paths
     (attach_embeddings) intentionally skip calling this function.
     """

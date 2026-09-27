@@ -24,7 +24,7 @@ import pandas as pd
 from scipy.stats import gaussian_kde
 
 from ._utils import downsample_then_embed
-from .css import ReferenceMap, _resolve_reference
+from .rds import ReferenceMap, _resolve_reference
 
 GRID_N = 300
 REF_CONTOUR_LEVEL_FRACS = (0.3, 0.6)

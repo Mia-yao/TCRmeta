@@ -18,7 +18,7 @@ TCR embeddings, in one of two flavors (`embedding_type`):
       level similarity.
 
 Note: embedding_type is a choice exposed only on embed_repertoire()
-itself. compute_css, plot_umap, energy_shift, and build_reference always
+itself. compute_rds, plot_umap, energy_shift, and build_reference always
 embed internally with embedding_type="final" — the "pretrained" option
 is for users who want the raw local-structure embedding directly (e.g.
 for their own downstream analysis), not for TCRmeta's own repertoire-
@@ -49,7 +49,7 @@ from ._weights import (
 CloneKey = Tuple[str, str]
 
 # Module-level cache so repeated calls to embed_repertoire (or internal
-# use by compute_css/plot_umap/energy_shift/build_reference) don't reload
+# use by compute_rds/plot_umap/energy_shift/build_reference) don't reload
 # the ~7 checkpoints from disk every time.
 _MODEL_CACHE: Dict[str, dict] = {}
 _VGENE_TABLE_CACHE: Optional[pd.DataFrame] = None
@@ -231,9 +231,9 @@ def embed_repertoire(
         the full explanation; in short, "pretrained" returns the raw
         480-dim base-encoder CLS embedding (specializes on local
         structure), and "final" runs it through the fine-tuned,
-        fine-tuned, GPA-aligned projection-head ensemble to produce a
+        GPA-aligned projection-head ensemble to produce a
         64-dim antigen-aware embedding (specializes on overall/global
-        structure). This choice only applies here — compute_css,
+        structure). This choice only applies here — compute_rds,
         plot_umap, energy_shift, and build_reference always use
         embedding_type="final" internally regardless of any
         embedding_type passed to them.
@@ -313,7 +313,7 @@ def attach_embeddings(
 ) -> pd.DataFrame:
     """Validate a repertoire and attach a per-clone 'embedding' column
     (numpy array per row), computing embeddings if not already provided.
-    Used internally by compute_css / plot_umap / energy_shift /
+    Used internally by compute_rds / plot_umap / energy_shift /
     build_reference so they all share one code path from raw df ->
     embedded, weighted clones.
 

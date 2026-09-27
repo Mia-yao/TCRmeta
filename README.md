@@ -6,7 +6,7 @@ analysis, built on a pretrained TCRmeta encoder + fine-tuning.
 Given a bulk TCR repertoire, TCRmeta can:
 
 1. **Embed** every clone into a TCR embedding (`embed_repertoire`) — pick between a "pretrained" or a "final" embedding, see below.
-2. **Score** a repertoire's clonal shift score (CSS) against a reference cohort (`compute_css`).
+2. **Score** a repertoire's Repertoire Dispersal Score (RDS) against a reference cohort (`compute_rds`).
 3. **Project** a repertoire onto a reference UMAP map, per V gene (`plot_umap`).
 4. **Compare** two repertoires via a frequency-weighted energy-distance shift (`energy_shift`).
 
@@ -49,8 +49,8 @@ df = pd.read_csv("my_repertoire.csv")  # cdr3aa, v_gene, count
 # embedding type" below for when to use "pretrained" instead)
 embeddings = tm.embed_repertoire(df)  # dict {(cdr3aa, v_gene): 64-dim np.ndarray}
 
-# 2. CSS against the shipped default reference
-per_gene_css, whole_css = tm.compute_css(df)  # v_gene=None -> scores all reference V genes
+# 2. RDS against the shipped default reference
+per_gene_rds, whole_rds = tm.compute_rds(df)  # v_gene=None -> scores all reference V genes
 
 # 3. UMAP projection (v_gene required)
 fig, coords = tm.plot_umap(df, v_gene="TRBV6-4")
@@ -68,7 +68,7 @@ reference_repertoires = [pd.read_csv(f) for f in my_reference_files]
 reference = tm.build_reference(reference_repertoires)
 tm.save_reference(reference, "my_reference.pkl")
 
-per_gene_css, whole_css = tm.compute_css(df, reference="my_reference.pkl")
+per_gene_rds, whole_rds = tm.compute_rds(df, reference="my_reference.pkl")
 fig, coords = tm.plot_umap(df, reference=reference, v_gene="TRBV6-4")
 ```
 
@@ -91,7 +91,7 @@ emb_final = tm.embed_repertoire(df, embedding_type="final")
 
 This choice is only exposed on `embed_repertoire` itself, for users who
 want the raw embeddings for their own downstream analysis.
-`compute_css`, `plot_umap`, `energy_shift`, and `build_reference` always
+`compute_rds`, `plot_umap`, `energy_shift`, and `build_reference` always
 embed internally with `embedding_type="final"` — TCRmeta's own
 repertoire-level statistics (and the shipped reference map) are all
 defined against that 64-dim antigen-aware embedding space, so these
@@ -111,7 +111,7 @@ if you don't need it.
 
 | Env var               | Purpose                                              |
 |------------------------|-------------------------------------------------------|
-| `TCRMETA_HF_REPO`      | Hugging Face Hub repo id for weights/reference (placeholder until published) |
+| `TCRMETA_HF_REPO`      | Hugging Face Hub repo id for weights/reference (defaults to TCRmeta's own public repo; override to point at a different/private mirror) |
 | `TCRMETA_WEIGHTS_DIR`  | Load weights from a local directory instead of the Hub |
 | `TCRMETA_CACHE_DIR`    | Local cache directory (default `~/.cache/tcrmeta`)    |
 

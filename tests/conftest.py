@@ -3,7 +3,7 @@
 torch/transformers are heavy dependencies needed for the actual
 embedding model (real end users will have them installed). The pure
 algorithmic pieces this test suite targets — column validation,
-downsampling, the CSS density-scoring formula, the reference-fitting
+downsampling, the RDS density-scoring formula, the reference-fitting
 math, the weighted energy-distance formula — don't need torch at all,
 and every torch-requiring import in those modules (embed_repertoire)
 was made lazy (imported inside function bodies, not at module top) so
@@ -13,7 +13,7 @@ installed.
 To do that, we register a stub 'tcrmeta' package in sys.modules (with
 __path__ pointing at the real src/tcrmeta directory) instead of letting
 Python execute the real tcrmeta/__init__.py — which itself eagerly
-imports the torch-dependent embedding module. Submodules (tcrmeta.css,
+imports the torch-dependent embedding module. Submodules (tcrmeta.rds,
 tcrmeta.reference, tcrmeta.energy, ...) are then imported normally
 through this stub package, so their relative imports resolve correctly.
 """
@@ -49,8 +49,8 @@ def tcrmeta_utils():
 
 
 @pytest.fixture(scope="session")
-def tcrmeta_css():
-    return load_tcrmeta_module("css")
+def tcrmeta_rds():
+    return load_tcrmeta_module("rds")
 
 
 @pytest.fixture(scope="session")

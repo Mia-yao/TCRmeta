@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "TCRmeta"
 version = "0.1.5"
-description = "Antigen-aware TCR repertoire embeddings: pretrained TCRmeta encoder + fine-tuning, with downstream CSS scoring, UMAP projection, and energy-distance shift analysis."
+description = "Antigen-aware TCR repertoire embeddings: pretrained TCRmeta encoder + fine-tuning, with downstream RDS (Repertoire Dispersal Score) scoring, UMAP projection, and energy-distance shift analysis."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
@@ -23,9 +23,30 @@ dependencies = [
     "numpy>=1.23",
     "pandas>=1.5",
     "scipy>=1.9",
+    # The shipped default reference map also pickles fitted StandardScaler /
+    # PCA / KernelDensity objects (same version-sensitive-pickle category as
+    # transformers/pynndescent above — sklearn's own docs warn against
+    # unpickling estimators across versions). Pinned exact to the version
+    # the shipped reference map was built with, to avoid the same class of
+    # bug surfacing here too.
     "scikit-learn==1.6.1",
     "torch>=1.13",
-    "transformers==4.48.3",  # 5.x breaks embed_repertoire - see CHANGELOG
+    # Pinned to an EXACT tested version: the shipped base-encoder checkpoint
+    # was trained/saved against a specific EsmModel internal architecture.
+    # We first tried "<5.0" (assuming only the 5.0 major bump broke it), but
+    # a newer 4.x release ALSO changed EsmModel's internals (observed:
+    # strict state_dict loading fails with "Unexpected key(s):
+    # encoder.embeddings.position_embeddings.weight" even on some 4.x
+    # versions), so a loose range isn't safe here. transformers==4.48.3 is
+    # the version this checkpoint was verified to load correctly against.
+    "transformers==4.48.3",
+    # The shipped default reference map pickles fitted umap.UMAP reducers
+    # (which internally hold a pynndescent.NNDescent index). Like the
+    # transformers checkpoint above, these are version-sensitive pickled
+    # objects, not just an API surface — a newer pynndescent failed to
+    # unpickle an older one's NNDescent state (AttributeError: 'NNDescent'
+    # object has no attribute 'quantization'). Pinned exact to the versions
+    # the shipped reference map was built with.
     "umap-learn==0.5.7",
     "pynndescent==0.5.13",
     "joblib>=1.2",
@@ -38,7 +59,7 @@ dependencies = [
 dev = ["pytest>=7.0", "build>=1.0"]
 
 [project.urls]
-Homepage = "https://github.com/Mia-yao/TCRmeta"
+Homepage = "https://github.com/Mia-yao/tcrmeta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
