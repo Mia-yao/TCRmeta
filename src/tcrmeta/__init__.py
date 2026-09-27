@@ -1,6 +1,6 @@
 """TCRmeta: antigen-aware TCR repertoire embeddings and downstream
 repertoire-level analysis (CSS scoring, UMAP projection, energy-distance
-shift), built on a pretrained TCRmeta encoder + contrastive fine-tuning.
+shift), built on a pretrained TCRmeta encoder + fine-tuning.
 """
 from .embedding import embed_repertoire
 from .reference import build_reference, load_reference, save_reference

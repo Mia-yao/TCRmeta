@@ -9,9 +9,9 @@ TCR embeddings, in one of two flavors (`embedding_type`):
       similarity between TCRs.
 
   "final" (default): 480-dim base embedding -> ensemble of 7
-      contrastively fine-tuned ResMLP projection heads -> GPA-rotation
+      fine-tuned ResMLP projection heads -> GPA-rotation
       alignment across ensemble members -> mean fusion -> L2-normalized
-      64-dim antigen-aware embedding. The contrastive fine-tuning
+      64-dim antigen-aware embedding. The fine-tuning
       objective pulls together TCRs recognizing the same antigen
       regardless of local sequence differences, so this embedding
       specializes on OVERALL/global structure — antigen-specificity-

@@ -1,7 +1,7 @@
 # TCRmeta
 
 Antigen-aware TCR repertoire embeddings and downstream repertoire-level
-analysis, built on a pretrained TCRmeta encoder + contrastive fine-tuning.
+analysis, built on a pretrained TCRmeta encoder + fine-tuning.
 
 Given a bulk TCR repertoire, TCRmeta can:
 
@@ -78,8 +78,8 @@ fig, coords = tm.plot_umap(df, reference=reference, v_gene="TRBV6-4")
 
 | `embedding_type` | Dim | What it is | What it captures |
 |---|---|---|---|
-| `"pretrained"` | 480 | The raw CLS embedding straight out of the masked-language-model-pretrained TCRmeta base encoder, before any contrastive fine-tuning. | **Local structure** — this encoder is trained to recover masked residues from local sequence context, so the embedding is most sensitive to motif/sub-sequence-level similarity between TCRs. |
-| `"final"` (default) | 64 | The 480-dim base embedding run through the ensemble of 7 contrastively fine-tuned projection heads, GPA-aligned and mean-fused, L2-normalized. | **Overall structure** — contrastive fine-tuning pulls together TCRs recognizing the same antigen regardless of local sequence differences, so this embedding is most sensitive to antigen-specificity-level, global similarity. |
+| `"pretrained"` | 480 | The raw CLS embedding straight out of the masked-language-model-pretrained TCRmeta base encoder, before any fine-tuning. | **Local structure** — this encoder is trained to recover masked residues from local sequence context, so the embedding is most sensitive to motif/sub-sequence-level similarity between TCRs. |
+| `"final"` (default) | 64 | The 480-dim base embedding run through the ensemble of 7 fine-tuned projection heads, GPA-aligned and mean-fused, L2-normalized. | **Overall structure** — fine-tuning pulls together TCRs recognizing the same antigen regardless of local sequence differences, so this embedding is most sensitive to antigen-specificity-level, global similarity. |
 
 ```python
 # Local-structure embedding
