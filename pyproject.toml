@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "TCRmeta"
-version = "0.1.5"
+version = "0.1.6"
 description = "Antigen-aware TCR repertoire embeddings: pretrained TCRmeta encoder + fine-tuning, with downstream RDS (Repertoire Dispersal Score) scoring, UMAP projection, and energy-distance shift analysis."
 readme = "README.md"
 requires-python = ">=3.9"
