@@ -2,7 +2,7 @@
 TCR embeddings, in one of two flavors (`embedding_type`):
 
   "pretrained": the raw 480-dim CLS embedding straight out of the
-      masked-language-model-pretrained ESM2-style base encoder. This
+      masked-language-model-pretrained TCRmeta base encoder. This
       encoder was trained on the local sequence-recovery objective
       (predicting masked residues from context), so its embedding
       specializes on LOCAL structure — motif/sub-sequence-level
