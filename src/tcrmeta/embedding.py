@@ -230,7 +230,7 @@ def embed_repertoire(
         "final" (default) or "pretrained". See the module docstring for
         the full explanation; in short, "pretrained" returns the raw
         480-dim base-encoder CLS embedding (specializes on local
-        structure), and "final" runs it through the contrastively
+        structure), and "final" runs it through the fine-tuned,
         fine-tuned, GPA-aligned projection-head ensemble to produce a
         64-dim antigen-aware embedding (specializes on overall/global
         structure). This choice only applies here — compute_css,
