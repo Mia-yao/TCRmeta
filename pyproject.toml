@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "TCRmeta"
-version = "0.1.3"
+version = "0.1.4"
 description = "Antigen-aware TCR repertoire embeddings: pretrained ESM2 + contrastive fine-tuning, with downstream CSS scoring, UMAP projection, and energy-distance shift analysis."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -23,10 +23,11 @@ dependencies = [
     "numpy>=1.23",
     "pandas>=1.5",
     "scipy>=1.9",
-    "scikit-learn>=1.2",
+    "scikit-learn==1.6.1",
     "torch>=1.13",
     "transformers==4.48.3",  # 5.x breaks embed_repertoire - see CHANGELOG
-    "umap-learn>=0.5",
+    "umap-learn==0.5.7",
+    "pynndescent==0.5.13",
     "joblib>=1.2",
     "tqdm>=4.64",
     "huggingface_hub>=0.20",
