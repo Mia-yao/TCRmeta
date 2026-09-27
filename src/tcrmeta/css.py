@@ -72,6 +72,17 @@ def _score_vgene(
             f"percentiles {pos_percentile}/{neg_percentile}. Available: "
             f"{[k for k in model if k.startswith('thr_')]}"
         )
+    expected_dim = getattr(model["scaler"], "n_features_in_", None)
+    if expected_dim is not None and emb.shape[1] != expected_dim:
+        raise ValueError(
+            f"Embedding dimension mismatch: this reference's V-gene models "
+            f"were fit on {expected_dim}-dim embeddings, but the query "
+            f"repertoire was embedded to {emb.shape[1]}-dim. compute_css "
+            f"always embeds with embedding_type='final' (64-dim), so this "
+            f"usually means the reference map was built with a different, "
+            f"incompatible embedding pipeline — rebuild it with "
+            f"build_reference() from this version of TCRmeta."
+        )
     X = model["pca"].transform(model["scaler"].transform(emb))
     ld = model["kde_model"].score_samples(X)
     wn = w / w.sum()

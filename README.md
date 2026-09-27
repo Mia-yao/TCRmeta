@@ -5,7 +5,7 @@ analysis, built on a pretrained-ESM2 + contrastively fine-tuned encoder.
 
 Given a bulk TCR repertoire, TCRmeta can:
 
-1. **Embed** every clone into a 64-dim antigen-aware embedding space (`embed_repertoire`).
+1. **Embed** every clone into a TCR embedding (`embed_repertoire`) — pick between a "pretrained" or a "final" embedding, see below.
 2. **Score** a repertoire's clonal shift score (CSS) against a reference cohort (`compute_css`).
 3. **Project** a repertoire onto a reference UMAP map, per V gene (`plot_umap`).
 4. **Compare** two repertoires via a frequency-weighted energy-distance shift (`energy_shift`).
@@ -45,7 +45,8 @@ import tcrmeta as tm
 
 df = pd.read_csv("my_repertoire.csv")  # cdr3aa, v_gene, count
 
-# 1. Embed
+# 1. Embed (embedding_type="final" is the default — see "Choosing an
+# embedding type" below for when to use "pretrained" instead)
 embeddings = tm.embed_repertoire(df)  # dict {(cdr3aa, v_gene): 64-dim np.ndarray}
 
 # 2. CSS against the shipped default reference
@@ -70,6 +71,31 @@ tm.save_reference(reference, "my_reference.pkl")
 per_gene_css, whole_css = tm.compute_css(df, reference="my_reference.pkl")
 fig, coords = tm.plot_umap(df, reference=reference, v_gene="TRBV6-4")
 ```
+
+### Choosing an embedding type
+
+`embed_repertoire` accepts an `embedding_type` argument with two options:
+
+| `embedding_type` | Dim | What it is | What it captures |
+|---|---|---|---|
+| `"pretrained"` | 480 | The raw CLS embedding straight out of the masked-language-model-pretrained ESM2-style base encoder, before any contrastive fine-tuning. | **Local structure** — this encoder is trained to recover masked residues from local sequence context, so the embedding is most sensitive to motif/sub-sequence-level similarity between TCRs. |
+| `"final"` (default) | 64 | The 480-dim base embedding run through the ensemble of 7 contrastively fine-tuned projection heads, GPA-aligned and mean-fused, L2-normalized. | **Overall structure** — contrastive fine-tuning pulls together TCRs recognizing the same antigen regardless of local sequence differences, so this embedding is most sensitive to antigen-specificity-level, global similarity. |
+
+```python
+# Local-structure embedding
+emb_pretrained = tm.embed_repertoire(df, embedding_type="pretrained")
+
+# Overall-structure embedding (default; same as tm.embed_repertoire(df))
+emb_final = tm.embed_repertoire(df, embedding_type="final")
+```
+
+This choice is only exposed on `embed_repertoire` itself, for users who
+want the raw embeddings for their own downstream analysis.
+`compute_css`, `plot_umap`, `energy_shift`, and `build_reference` always
+embed internally with `embedding_type="final"` — TCRmeta's own
+repertoire-level statistics (and the shipped reference map) are all
+defined against that 64-dim antigen-aware embedding space, so these
+functions ignore any `embedding_type` passed to them.
 
 ### Keeping intermediate embeddings
 

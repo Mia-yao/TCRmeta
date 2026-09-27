@@ -1,10 +1,29 @@
 """Task 1: embed_repertoire — turn a TCR repertoire dataframe into
-antigen-aware 64-dim embeddings.
+TCR embeddings, in one of two flavors (`embedding_type`):
 
-Pipeline: ESM2-backbone encoder (pretrained on TCR sequence context) ->
-480-dim CLS embedding -> ensemble of 7 contrastively fine-tuned ResMLP
-projection heads -> GPA-rotation alignment across ensemble members ->
-mean fusion -> L2-normalized 64-dim antigen-aware embedding.
+  "pretrained": the raw 480-dim CLS embedding straight out of the
+      masked-language-model-pretrained ESM2-style base encoder. This
+      encoder was trained on the local sequence-recovery objective
+      (predicting masked residues from context), so its embedding
+      specializes on LOCAL structure — motif/sub-sequence-level
+      similarity between TCRs.
+
+  "final" (default): 480-dim base embedding -> ensemble of 7
+      contrastively fine-tuned ResMLP projection heads -> GPA-rotation
+      alignment across ensemble members -> mean fusion -> L2-normalized
+      64-dim antigen-aware embedding. The contrastive fine-tuning
+      objective pulls together TCRs recognizing the same antigen
+      regardless of local sequence differences, so this embedding
+      specializes on OVERALL/global structure — antigen-specificity-
+      level similarity.
+
+Note: embedding_type is a choice exposed only on embed_repertoire()
+itself. compute_css, plot_umap, energy_shift, and build_reference always
+embed internally with embedding_type="final" — the "pretrained" option
+is for users who want the raw local-structure embedding directly (e.g.
+for their own downstream analysis), not for TCRmeta's own repertoire-
+level statistics, which are all defined/validated against the 64-dim
+antigen-aware "final" embedding space.
 """
 from __future__ import annotations
 
@@ -182,8 +201,9 @@ def embed_repertoire(
     num_workers: int = 0,
     use_amp: bool = False,
     save_path: Optional[str] = None,
+    embedding_type: str = "final",
 ) -> Dict[CloneKey, np.ndarray]:
-    """Embed a TCR repertoire into antigen-aware 64-dim embeddings.
+    """Embed a TCR repertoire into TCR embeddings.
 
     Parameters
     ----------
@@ -206,11 +226,28 @@ def embed_repertoire(
         previously published/computed results.
     save_path:
         If given, pickle the resulting embedding dict to this path.
+    embedding_type:
+        "final" (default) or "pretrained". See the module docstring for
+        the full explanation; in short, "pretrained" returns the raw
+        480-dim base-encoder CLS embedding (specializes on local
+        structure), and "final" runs it through the contrastively
+        fine-tuned, GPA-aligned projection-head ensemble to produce a
+        64-dim antigen-aware embedding (specializes on overall/global
+        structure). This choice only applies here — compute_css,
+        plot_umap, energy_shift, and build_reference always use
+        embedding_type="final" internally regardless of any
+        embedding_type passed to them.
 
     Returns
     -------
-    dict mapping (cdr3aa, v_gene) -> np.ndarray of shape (64,), float32.
+    dict mapping (cdr3aa, v_gene) -> np.ndarray, float32. Shape is (480,)
+    for embedding_type="pretrained" or (64,) for embedding_type="final".
     """
+    if embedding_type not in ("pretrained", "final"):
+        raise ValueError(
+            f"embedding_type must be 'pretrained' or 'final', got {embedding_type!r}."
+        )
+
     if df is None or len(df) == 0:
         return {}
 
@@ -252,11 +289,14 @@ def embed_repertoire(
     if emb480.shape[0] != len(df_u):
         raise RuntimeError(f"Unexpected embedding shape {emb480.shape} vs {len(df_u)} clones.")
 
-    Z_full_list = _encode_ensemble(bundle["proj_models"], emb480, dev, batch_size)
-    emb64 = _fuse_ensemble(Z_full_list, bundle["rotations"])
+    if embedding_type == "pretrained":
+        final_emb = emb480.astype(np.float32, copy=False)
+    else:
+        Z_full_list = _encode_ensemble(bundle["proj_models"], emb480, dev, batch_size)
+        final_emb = _fuse_ensemble(Z_full_list, bundle["rotations"])
 
     keys = list(zip(df_u["cdr3aa"].tolist(), df_u["v_gene"].tolist()))
-    result: Dict[CloneKey, np.ndarray] = {keys[i]: emb64[i] for i in range(len(keys))}
+    result: Dict[CloneKey, np.ndarray] = {keys[i]: final_emb[i] for i in range(len(keys))}
 
     if save_path is not None:
         with open(save_path, "wb") as f:

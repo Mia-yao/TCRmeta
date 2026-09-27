@@ -31,20 +31,24 @@ PRIVATE = True
 # relative paths TCRmeta's _weights.py looks for inside the Hub repo —
 # don't change the keys, only the values (your local file locations).
 LOCAL_FILES = {
-    "base_encoder/best_model.pth": "/path/to/your/best_model.pth",
-    "finetune/rotations_gpa.pkl": "/path/to/your/rotations_gpa.pkl",
-    "reference_data/vgene_cdr.csv": "/path/to/your/vgene_cdr1225.csv",
-    "reference_maps/young_reference.pkl": "/path/to/your/vgene_density_models.pkl",
+    "base_encoder/best_model.pth": "/mnt/isilon/boli_lab/globus/project/mingyao/DeepCluster/model_checkpoint/thers10_Markov_35M_twoside_perTCR/best_model.pth",
+    "finetune/rotations_gpa.pkl": "/mnt/isilon/boli_lab/globus/project/mingyao/DeepCluster/data/fine_tune/rotations_gpa.pkl",
+    "reference_data/vgene_cdr.csv": "/mnt/isilon/boli_lab/globus/project/mingyao/HLA_TCR_cross_reactivity/single_tcr_mhc_prediction/vgene_cdr1225.csv",
+    "reference_maps/young_reference.pkl": (
+        "/mnt/isilon/boli_lab/globus/project/mingyao/DeepCluster/distribution_shift/"
+        "Tonon/reference_map/density_map_output/density_map_output_pca30_10000_thres/"
+        "vgene_density_models.pkl"
+    ),
     # The 7 projection-head checkpoints, IN THE SAME ORDER the rotation
     # matrices (rotations_gpa.pkl's R_list) were fit against. Getting this
     # order wrong will silently misalign the ensemble.
-    "finetune/proj_head_0.pt": "/path/to/fold_7/best_bce_base.pt",
-    "finetune/proj_head_1.pt": "/path/to/fold_8/best_bce_base.pt",
-    "finetune/proj_head_2.pt": "/path/to/fold_5/best_bce_base.pt",
-    "finetune/proj_head_3.pt": "/path/to/fold_1/best_purity10_base.pt",
-    "finetune/proj_head_4.pt": "/path/to/fold_2/best_purity10_base.pt",
-    "finetune/proj_head_5.pt": "/path/to/fold_3/best_purity10_base.pt",
-    "finetune/proj_head_6.pt": "/path/to/fold_8/best_purity10_base.pt",
+    "finetune/proj_head_0.pt": "/mnt/isilon/boli_lab/globus/project/mingyao/DeepCluster/model_checkpoint/fisher_label_finetune_tune_10times_64dim/fold_7/best_bce_base.pt",
+    "finetune/proj_head_1.pt": "/mnt/isilon/boli_lab/globus/project/mingyao/DeepCluster/model_checkpoint/fisher_label_finetune_tune_10times_64dim/fold_8/best_bce_base.pt",
+    "finetune/proj_head_2.pt": "/mnt/isilon/boli_lab/globus/project/mingyao/DeepCluster/model_checkpoint/fisher_label_finetune_tune_10times_64dim/fold_5/best_bce_base.pt",
+    "finetune/proj_head_3.pt": "/mnt/isilon/boli_lab/globus/project/mingyao/DeepCluster/model_checkpoint/fisher_label_finetune_tune_10times_64dim/fold_1/best_purity10_base.pt",
+    "finetune/proj_head_4.pt": "/mnt/isilon/boli_lab/globus/project/mingyao/DeepCluster/model_checkpoint/fisher_label_finetune_tune_10times_64dim/fold_2/best_purity10_base.pt",
+    "finetune/proj_head_5.pt": "/mnt/isilon/boli_lab/globus/project/mingyao/DeepCluster/model_checkpoint/fisher_label_finetune_tune_10times_64dim/fold_3/best_purity10_base.pt",
+    "finetune/proj_head_6.pt": "/mnt/isilon/boli_lab/globus/project/mingyao/DeepCluster/model_checkpoint/fisher_label_finetune_tune_10times_64dim/fold_8/best_purity10_base.pt",
 }
 
 

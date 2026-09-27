@@ -159,6 +159,12 @@ def _prepare_for_energy(
     load_one_sample() never deduplicates (cdr3aa, v_gene) rows before
     downsampling — raw per-row structure (including any genuine
     duplicate clone rows) is preserved throughout.
+
+    Always embeds with embedding_type="final" (the antigen-aware,
+    contrastively fine-tuned embedding) regardless of what's in
+    embed_kwargs — energy_shift's weighted-energy-distance calculation
+    is defined against that embedding space. Only embed_repertoire()
+    itself exposes a choice of embedding_type.
     """
     from .embedding import attach_embeddings  # lazy: keeps the pure distance
 
@@ -172,6 +178,7 @@ def _prepare_for_energy(
     df = df.loc[keep].copy()
     df["ds_count"] = counts_ds[keep]
 
+    embed_kwargs = {**embed_kwargs, "embedding_type": "final"}
     df_e = attach_embeddings(df, device=device, **embed_kwargs)
     return df_e
 

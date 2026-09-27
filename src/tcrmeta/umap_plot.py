@@ -51,6 +51,17 @@ def _plot_one_vgene(
     grid_n: int,
     figsize: Tuple[float, float],
 ) -> Tuple[plt.Figure, pd.DataFrame]:
+    expected_dim = getattr(model["scaler"], "n_features_in_", None)
+    if expected_dim is not None and emb_vg.shape[1] != expected_dim:
+        raise ValueError(
+            f"Embedding dimension mismatch: this reference's '{vg}' model was "
+            f"fit on {expected_dim}-dim embeddings, but the query repertoire "
+            f"was embedded to {emb_vg.shape[1]}-dim. plot_umap always embeds "
+            f"with embedding_type='final' (64-dim), so this usually means the "
+            f"reference map was built with a different, incompatible "
+            f"embedding pipeline — rebuild it with build_reference() from "
+            f"this version of TCRmeta."
+        )
     X_scaled = model["scaler"].transform(emb_vg)
     X_umap = model["umap_reducer"].transform(X_scaled)
 

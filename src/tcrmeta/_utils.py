@@ -100,6 +100,12 @@ def downsample_then_embed(
 
     Returns the downsampled + embedded dataframe with an added 'ds'
     float64 column (post-downsample weight per surviving row).
+
+    Always embeds with embedding_type="final" (the antigen-aware,
+    contrastively fine-tuned embedding) regardless of what's in
+    embed_kwargs — compute_css/plot_umap's reference maps are built on
+    that embedding space, so scoring against them requires it. Only
+    embed_repertoire() itself exposes a choice of embedding_type.
     """
     from .embedding import attach_embeddings  # lazy: keeps this module
 
@@ -111,6 +117,7 @@ def downsample_then_embed(
     keep = ds > 0
     df = df.loc[keep].copy()
     df["ds"] = ds[keep].astype(np.float64)
+    embed_kwargs = {**embed_kwargs, "embedding_type": "final"}
     df_e = attach_embeddings(df, device=device, **embed_kwargs)
     return df_e
 

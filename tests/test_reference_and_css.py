@@ -137,3 +137,15 @@ def test_pool_whole_repertoire_empty_input(tcrmeta_css):
     pooled = tcrmeta_css._pool_whole_repertoire([])
     assert pooled["n_v_genes"] == 0
     assert np.isnan(pooled["CSS"])
+
+
+def test_score_vgene_raises_clear_error_on_embedding_dim_mismatch(tcrmeta_css, fitted_model):
+    # fitted_model was fit on DIM=10 embeddings (e.g. embedding_type="final").
+    # Simulate calling compute_css with embedding_type="pretrained" (a
+    # different, mismatched dimensionality) against that same reference.
+    rng = np.random.default_rng(0)
+    wrong_dim = DIM + 5
+    emb_wrong = rng.normal(size=(50, wrong_dim)).astype(np.float32)
+    w = np.ones(50)
+    with pytest.raises(ValueError, match="[Ee]mbedding dimension mismatch"):
+        tcrmeta_css._score_vgene(emb_wrong, w, fitted_model, pos_percentile=85, neg_percentile=15)

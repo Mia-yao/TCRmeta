@@ -40,11 +40,18 @@ def _prepare_reference_sample(
     """Embed one reference-cohort repertoire and downsample its clone
     counts to a fixed depth, returning per-clone V gene labels, 64-dim
     embeddings, and downsampled weights.
+
+    Always embeds with embedding_type="final" (the antigen-aware,
+    contrastively fine-tuned embedding) regardless of what's in
+    embed_kwargs, so every reference map is built in a single,
+    consistent 64-dim embedding space matching compute_css/plot_umap.
+    Only embed_repertoire() itself exposes a choice of embedding_type.
     """
     from .embedding import attach_embeddings  # lazy: keeps the pure
 
     # density/UMAP-fitting logic (_build_one_vgene) importable/testable
     # without torch/transformers installed.
+    embed_kwargs = {**embed_kwargs, "embedding_type": "final"}
     df_e = attach_embeddings(df, device=device, **embed_kwargs)
     if len(df_e) < 2:
         return None
